@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import gsap from 'gsap';
 import { Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import MagneticButton from '@/components/MagneticButton';
 import zoomLogo from '@/assets/zoom-logo.png';
 
 const navLinks = [
@@ -24,6 +25,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const location = useLocation();
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,12 +39,22 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   }, [location]);
 
+  useEffect(() => {
+    // Navbar entrance animation
+    gsap.fromTo(
+      navRef.current,
+      { y: -100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.5 }
+    );
+  }, []);
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      ref={navRef}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled 
-          ? 'bg-card/95 backdrop-blur-md shadow-md py-3' 
-          : 'bg-transparent py-5'
+          ? 'bg-card/90 backdrop-blur-xl shadow-lg py-4' 
+          : 'bg-transparent py-6'
       }`}
     >
       <div className="container mx-auto px-4 lg:px-8">
@@ -52,12 +64,12 @@ const Navbar = () => {
             <img 
               src={zoomLogo} 
               alt="Zoom Business Solutions" 
-              className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+              className="h-12 w-auto transition-transform duration-500 group-hover:scale-110"
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-10">
             {navLinks.map((link) => (
               <div 
                 key={link.name}
@@ -67,24 +79,25 @@ const Navbar = () => {
               >
                 <Link
                   to={link.path}
-                  className={`text-sm font-medium transition-colors duration-200 hover:text-primary ${
+                  className={`text-base font-medium transition-all duration-300 relative group ${
                     location.pathname === link.path 
                       ? 'text-primary' 
-                      : 'text-foreground/80'
+                      : 'text-foreground/80 hover:text-primary'
                   }`}
                 >
                   {link.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
                 </Link>
                 
                 {/* Dropdown */}
                 {link.dropdown && activeDropdown === link.name && (
-                  <div className="absolute top-full left-0 pt-2 animate-fade-in">
-                    <div className="bg-card rounded-lg shadow-lg border border-border overflow-hidden min-w-[180px]">
+                  <div className="absolute top-full left-0 pt-4 animate-fade-in">
+                    <div className="bg-card rounded-2xl shadow-2xl border border-border overflow-hidden min-w-[200px]">
                       {link.dropdown.map((item) => (
                         <Link
                           key={item.name}
                           to={item.path}
-                          className="block px-4 py-3 text-sm text-foreground/80 hover:bg-muted hover:text-primary transition-colors"
+                          className="block px-6 py-4 text-base text-foreground/80 hover:bg-muted hover:text-primary transition-all duration-300"
                         >
                           {item.name}
                         </Link>
@@ -99,45 +112,45 @@ const Navbar = () => {
           {/* CTA Button */}
           <div className="hidden lg:block">
             <Link to="/contact">
-              <Button variant="hero" size="lg">
+              <MagneticButton className="px-8 py-4 rounded-full bg-foreground text-background font-semibold hover:bg-primary transition-all duration-300">
                 Schedule a Strategy Session
-              </Button>
+              </MagneticButton>
             </Link>
           </div>
 
           {/* Mobile Menu Button */}
           <button
-            className="lg:hidden p-2 text-foreground"
+            className="lg:hidden p-3 text-foreground rounded-full hover:bg-muted transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </nav>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden mt-4 pb-4 animate-fade-in">
-            <div className="flex flex-col gap-4">
+          <div className="lg:hidden mt-6 pb-6 animate-fade-in">
+            <div className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <div key={link.name}>
                   <Link
                     to={link.path}
-                    className={`block py-2 text-base font-medium transition-colors ${
+                    className={`block py-4 px-4 text-xl font-medium rounded-xl transition-all ${
                       location.pathname === link.path 
-                        ? 'text-primary' 
-                        : 'text-foreground/80 hover:text-primary'
+                        ? 'text-primary bg-primary/10' 
+                        : 'text-foreground/80 hover:text-primary hover:bg-muted'
                     }`}
                   >
                     {link.name}
                   </Link>
                   {link.dropdown && (
-                    <div className="ml-4 mt-2 flex flex-col gap-2">
+                    <div className="ml-6 mt-2 flex flex-col gap-2">
                       {link.dropdown.map((item) => (
                         <Link
                           key={item.name}
                           to={item.path}
-                          className="text-sm text-muted-foreground hover:text-primary"
+                          className="py-3 px-4 text-lg text-muted-foreground hover:text-primary rounded-lg hover:bg-muted transition-all"
                         >
                           {item.name}
                         </Link>
@@ -146,10 +159,10 @@ const Navbar = () => {
                   )}
                 </div>
               ))}
-              <Link to="/contact" className="mt-4">
-                <Button variant="hero" className="w-full">
+              <Link to="/contact" className="mt-6">
+                <button className="w-full py-4 px-8 rounded-full bg-foreground text-background font-semibold hover:bg-primary transition-all">
                   Schedule a Strategy Session
-                </Button>
+                </button>
               </Link>
             </div>
           </div>

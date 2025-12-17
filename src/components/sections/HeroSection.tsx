@@ -1,8 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Database, Brain, Sparkles } from 'lucide-react';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import VectorBackground from '@/components/VectorBackground';
+import TextReveal from '@/components/TextReveal';
+import MagneticButton from '@/components/MagneticButton';
+import { ArrowRight } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const HeroSection = () => {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -10,33 +15,47 @@ const HeroSection = () => {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      // Parallax background
+      gsap.to(bgRef.current, {
+        y: 200,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+
+      // Title animation with split text effect
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
       
       tl.fromTo(
         titleRef.current,
-        { y: 80, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1 }
+        { y: 150, opacity: 0, rotationX: -45 },
+        { y: 0, opacity: 1, rotationX: 0, duration: 1.4 }
       )
       .fromTo(
         subtitleRef.current,
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8 },
-        '-=0.5'
+        { y: 80, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1 },
+        '-=0.8'
       )
       .fromTo(
         ctaRef.current?.children || [],
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.15 },
-        '-=0.4'
+        { y: 50, opacity: 0, scale: 0.9 },
+        { y: 0, opacity: 1, scale: 1, duration: 0.8, stagger: 0.2 },
+        '-=0.6'
       )
       .fromTo(
         statsRef.current?.children || [],
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1 },
-        '-=0.3'
+        { y: 60, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, stagger: 0.15 },
+        '-=0.4'
       );
     }, heroRef);
 
@@ -46,91 +65,89 @@ const HeroSection = () => {
   return (
     <section 
       ref={heroRef}
-      className="relative min-h-screen flex items-center bg-gradient-hero overflow-hidden"
+      className="relative min-h-screen flex items-center overflow-hidden bg-background"
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 right-0 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 left-0 w-[400px] h-[400px] rounded-full bg-accent/5 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      {/* Animated Background */}
+      <div ref={bgRef} className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-hero" />
+        <VectorBackground variant="hero" />
+        
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-1/4 right-0 w-[800px] h-[800px] rounded-full bg-gradient-radial from-primary/10 to-transparent blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 left-0 w-[600px] h-[600px] rounded-full bg-gradient-radial from-accent/10 to-transparent blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
-      <div className="container mx-auto px-4 lg:px-8 pt-24 pb-16 relative z-10">
-        <div className="max-w-4xl">
+      <div className="container mx-auto px-4 lg:px-8 pt-32 pb-20 relative z-10">
+        <div className="max-w-5xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
-            <Sparkles size={16} />
+          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-primary/30 bg-primary/5 text-primary text-base font-semibold mb-10 animate-fade-in">
+            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             Enterprise Data & AI Consulting
           </div>
 
           {/* Title */}
           <h1 
             ref={titleRef}
-            className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6 text-foreground"
+            className="text-5xl md:text-7xl lg:text-8xl xl:text-9xl font-bold leading-[0.9] mb-10 text-foreground tracking-tight"
           >
-            Transforming Data into{' '}
-            <span className="text-gradient">Decisive Business</span>{' '}
+            Transforming
+            <br />
+            <span className="text-gradient">Data</span> into
+            <br />
+            <span className="text-gradient">Decisive</span>
+            <br />
             Advantage
           </h1>
 
           {/* Subtitle */}
           <p 
             ref={subtitleRef}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10 leading-relaxed"
+            className="text-xl md:text-2xl lg:text-3xl text-muted-foreground max-w-3xl mb-14 leading-relaxed font-light"
           >
-            We partner with enterprises across Australia and APAC to unlock the power of 
-            Data Strategy, Artificial Intelligence, and Generative AI—delivering measurable 
-            ROI and competitive edge.
+            Partnering with enterprises across New Zealand and APAC to unlock the power of 
+            Data Strategy, AI, and Generative AI.
           </p>
 
           {/* CTAs */}
-          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-4 mb-16">
+          <div ref={ctaRef} className="flex flex-col sm:flex-row gap-6 mb-20">
             <Link to="/contact">
-              <Button variant="hero" size="xl" className="group">
+              <MagneticButton className="group inline-flex items-center gap-3 px-10 py-5 rounded-full bg-foreground text-background text-lg font-semibold transition-all hover:bg-primary">
                 Schedule a Strategy Session
-                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" size={20} />
-              </Button>
+                <ArrowRight className="group-hover:translate-x-2 transition-transform" size={24} />
+              </MagneticButton>
             </Link>
             <Link to="/clients">
-              <Button variant="heroOutline" size="xl">
+              <MagneticButton className="inline-flex items-center gap-3 px-10 py-5 rounded-full border-2 border-foreground/20 text-foreground text-lg font-semibold hover:border-primary hover:text-primary transition-all">
                 View Our Results
-              </Button>
+              </MagneticButton>
             </Link>
           </div>
 
           {/* Stats */}
-          <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {[
               { value: '50+', label: 'Enterprise Clients' },
               { value: '200%', label: 'Average ROI' },
               { value: '15+', label: 'Years Experience' },
               { value: 'APAC', label: 'Regional Coverage' },
             ].map((stat) => (
-              <div key={stat.label} className="text-center md:text-left">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-1">
+              <div key={stat.label} className="text-center md:text-left group cursor-default">
+                <div className="text-5xl md:text-6xl lg:text-7xl font-bold text-primary mb-2 group-hover:scale-110 transition-transform origin-left">
                   {stat.value}
                 </div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
+                <div className="text-base text-muted-foreground font-medium">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Floating Service Icons */}
-      <div className="hidden xl:block absolute right-16 top-1/2 -translate-y-1/2 space-y-8">
-        {[
-          { icon: Database, label: 'Data Strategy' },
-          { icon: Brain, label: 'AI & ML' },
-          { icon: Sparkles, label: 'Gen AI' },
-        ].map((item, index) => (
-          <div 
-            key={item.label}
-            className="w-20 h-20 rounded-2xl bg-card shadow-lg flex items-center justify-center hover-lift cursor-pointer animate-float"
-            style={{ animationDelay: `${index * 0.5}s` }}
-          >
-            <item.icon className="text-primary" size={32} />
-          </div>
-        ))}
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 animate-bounce">
+        <span className="text-sm text-muted-foreground font-medium">Scroll</span>
+        <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex justify-center pt-2">
+          <div className="w-1.5 h-3 rounded-full bg-primary animate-scroll" />
+        </div>
       </div>
     </section>
   );
